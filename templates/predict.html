@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SMS Spam Detection</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body class="background">
+    <div class="container">
+        <h1>Spam Detection System</h1>
+        
+        <div id="error-container" class="error-message" style="display: none;"></div>
+        
+        <form id="predictionForm">
+            <div class="input-container">
+                <textarea 
+                    id="messageInput"
+                    name="message" 
+                    placeholder="Enter your message here..."
+                    required>{{ message if message else '' }}</textarea>
+            </div>
+            <button type="submit">Check Message</button>
+        </form>
+
+        <div id="result-container" class="output-container" style="display: none;">
+            <h2 id="prediction-text" class="prediction"></h2>
+            <div class="result">
+                <i id="result-icon" class="result-icon fa" aria-hidden="true"></i>
+                <span id="result-text" class="result-text"></span>
+            </div>
+        </div>
+
+        <div id="loading-container" style="display: none; text-align: center; margin-top: 20px;">
+            <i class="fa fa-spinner fa-spin fa-2x"></i>
+            <p>Analyzing message...</p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('predictionForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            // Get the message
+            const message = document.getElementById('messageInput').value.trim();
+            if (!message) {
+                showError('Please enter a message.');
+                return;
+            }
+
+            // Show loading state
+            document.getElementById('loading-container').style.display = 'block';
+            document.getElementById('result-container').style.display = 'none';
+            document.getElementById('error-container').style.display = 'none';
+
+            try {
+                // Send the request
+                const response = await fetch('/api/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message: message })
+                });
+
+                // Hide loading state
+                document.getElementById('loading-container').style.display = 'none';
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to get prediction');
+                }
+
+                const result = await response.json();
+                showResult(result);
+            } catch (error) {
+                document.getElementById('loading-container').style.display = 'none';
+                showError(error.message || 'Error processing request');
+            }
+        });
+
+        function showResult(result) {
+            const resultContainer = document.getElementById('result-container');
+            const predictionText = document.getElementById('prediction-text');
+            const resultIcon = document.getElementById('result-icon');
+            const resultText = document.getElementById('result-text');
+
+            // Update the prediction display
+            predictionText.textContent = result.prediction;
+            
+            // Update icon and classes based on prediction
+            if (result.prediction === 'SPAM') {
+                resultContainer.classList.add('spam');
+                resultContainer.classList.remove('not-spam');
+                resultIcon.classList.remove('fa-check-circle');
+                resultIcon.classList.add('fa-exclamation-circle');
+            } else {
+                resultContainer.classList.add('not-spam');
+                resultContainer.classList.remove('spam');
+                resultIcon.classList.remove('fa-exclamation-circle');
+                resultIcon.classList.add('fa-check-circle');
+            }
+
+            // Update result text
+            resultText.textContent = `This message is classified as ${result.prediction} with ${result.probability} confidence.`;
+            
+            // Show the result container
+            resultContainer.style.display = 'block';
+        }
+
+        function showError(message) {
+            const errorContainer = document.getElementById('error-container');
+            errorContainer.textContent = message;
+            errorContainer.style.display = 'block';
+            document.getElementById('result-container').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
