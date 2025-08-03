@@ -29,8 +29,8 @@ cd sms-spam-identifier
 # Install dependencies
 pip install -r requirements.txt
 
-# Download NLTK data
-python -c "import nltk; nltk.download('wordnet')"
+# Download database and auxiliary data
+python setup.py
 ```
 
 ## Usage
@@ -38,8 +38,6 @@ python -c "import nltk; nltk.download('wordnet')"
 ### Training a Model
 
 ```bash
-# Note: You'll need to provide your own spam.csv dataset
-# Dataset should have columns: TEXT, LABEL (ham/spam)
 python training.py
 ```
 
@@ -59,11 +57,7 @@ Navigate to `http://localhost:5000` to use the web interface.
 
 ## Dataset
 
-The original training dataset is not included in this repository due to inappropriate content. To train your own model:
-
-1. Use a public SMS spam dataset like the [UCI SMS Spam Collection](https://archive.ics.uci.edu/ml/datasets/sms+spam+collection)
-2. Ensure your CSV has columns: `TEXT` (message content) and `LABEL` (ham/spam)
-3. Place it as `spam.csv` in the project root
+The dataset used is [UCI SMS Spam Collection](https://archive.ics.uci.edu/ml/datasets/sms+spam+collection)
 
 ## Model Performance
 
@@ -94,6 +88,7 @@ The original training dataset is not included in this repository due to inapprop
 ├── prediction.py             # Prediction service and model loading
 ├── training.py               # Model training pipeline
 ├── feature_engineering.py    # Text preprocessing and feature extraction
+├── setup.py                  # Setup script for external data
 ├── templates/                # HTML templates
 │   ├── index.html
 │   └── predict.html
