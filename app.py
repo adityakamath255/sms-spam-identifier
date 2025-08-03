@@ -27,7 +27,16 @@ def api_predict():
             return jsonify({'error': 'Empty message'}), 400
 
         result = predictor.predict(message)
-        return jsonify(result)
+
+        prediction = result["prediction"]
+        probability = result["probability"]
+        confidence = result["confidence"]
+
+        return jsonify({
+            "prediction": prediction,
+            "probability": f"{probability:.2%}",
+            "confidence": f"{confidence:.2%}"
+        })
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500

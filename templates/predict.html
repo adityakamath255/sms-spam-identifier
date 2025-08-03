@@ -96,7 +96,7 @@
                 resultIcon.classList.add('fa-check-circle');
             }
 
-              resultText.textContent = `This message is classified as ${result.prediction} with ${result.confidence.toFixed(4) * 100}% confidence.`;
+              resultText.textContent = `This message is classified as ${result.prediction} with ${result.confidence} confidence.`;
             resultContainer.style.display = 'block';
         }
 

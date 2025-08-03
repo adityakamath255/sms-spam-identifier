@@ -20,7 +20,7 @@ class Predictor:
 
     def predict(self, text: str) -> Dict[str, float]:
         """Predict whether the message is spam or not."""
-        features = self.feature_extractor(text, self.vectorizer)
+        features = self.feature_extractor.process_single(text, self.vectorizer)
 
         probability = self.model.predict(xgb.DMatrix(features))[0]
 
