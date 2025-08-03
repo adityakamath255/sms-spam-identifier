@@ -1,11 +1,9 @@
 import pickle
 import xgboost as xgb
-import numpy as np
-import pandas as pd
-from typing import Tuple
+from typing import Dict
 from nltk.stem import WordNetLemmatizer
 
-from model_trainer import *
+from feature_engineering import FeatureExtractor
 
 
 class Predictor:
@@ -18,19 +16,13 @@ class Predictor:
         self.model.load_model(model_path)
         with open(vectorizer_path, 'rb') as f:
             self.vectorizer = pickle.load(f)
-        self.lemmatizer = WordNetLemmatizer()
+        self.feature_extractor = FeatureExtractor(WordNetLemmatizer())
 
-    def predict(self, text: str) -> Tuple[str, float]:
+    def predict(self, text: str) -> Dict[str, float]:
         """Predict whether the message is spam or not."""
-        processed_text = preprocess_text(text, self.lemmatizer)
-        features = self.vectorizer.transform([processed_text])
-        additional_features = pd.DataFrame([extract_features(text)])
-        combined_features = np.hstack([
-            features.toarray(),
-            additional_features.values
-        ])
+        features = self.feature_extractor(text, self.vectorizer)
 
-        probability = self.model.predict(xgb.DMatrix(combined_features))[0]
+        probability = self.model.predict(xgb.DMatrix(features))[0]
 
         return {
             "prediction": 'SPAM' if probability >= 0.5 else 'NOT SPAM',
