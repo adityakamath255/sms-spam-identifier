@@ -12,9 +12,12 @@ A machine learning-powered web application that classifies SMS messages as spam 
 
 ## Architecture
 
-The system consists of two main components:
-1. **Training Module** (`model_trainer.py`): Trains the XGBoost classifier
-2. **Prediction Service** (`app.py` + `predictor.py`): Flask web application for real-time predictions
+The system consists of modular components:
+1. **Training Module** (`training.py`): Trains the XGBoost classifier using feature engineering pipeline
+2. **Prediction Service** (`prediction.py`): Encapsulates model loading and inference logic
+3. **Feature Engineering** (`feature_engineering.py`): Text preprocessing and feature extraction
+4. **Web Application** (`app.py`): Flask web interface for real-time predictions
+5. **CLI Interface** (`cli.py`): Command-line tool for interactive predictions
 
 ## Installation
 
@@ -37,7 +40,13 @@ python -c "import nltk; nltk.download('wordnet')"
 ```bash
 # Note: You'll need to provide your own spam.csv dataset
 # Dataset should have columns: TEXT, LABEL (ham/spam)
-python model_trainer.py
+python training.py
+```
+
+### Using the Command Line Interface
+
+```bash
+python cli.py
 ```
 
 ### Running the Web Application
@@ -80,15 +89,17 @@ The original training dataset is not included in this repository due to inapprop
 ## Project Structure
 
 ```
-├── app.py                 # Flask web application
-├── predictor.py          # Prediction service
-├── model_trainer.py      # Model training script
-├── templates/            # HTML templates
+├── app.py                    # Flask web application
+├── cli.py                    # Command-line interface
+├── prediction.py             # Prediction service and model loading
+├── training.py               # Model training pipeline
+├── feature_engineering.py    # Text preprocessing and feature extraction
+├── templates/                # HTML templates
 │   ├── index.html
 │   └── predict.html
-├── static/              # CSS and JS files
+├── static/                   # CSS and JS files
 │   └── styles.css
-└── requirements.txt     # Python dependencies
+└── requirements.txt          # Python dependencies
 ```
 
 ## Requirements
