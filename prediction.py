@@ -29,5 +29,15 @@ class Predictor:
             features.toarray(),
             additional_features.values
         ])
-        pred_prob = self.model.predict(xgb.DMatrix(combined_features))[0]
-        return 'SPAM' if pred_prob > 0.5 else 'NOT SPAM', pred_prob
+
+        probability = self.model.predict(xgb.DMatrix(combined_features))[0]
+
+        return {
+            "prediction": 'SPAM' if probability >= 0.5 else 'NOT SPAM',
+            "probability": probability,
+            "confidence": (
+                probability
+                if probability >= 0.5
+                else 1.0 - probability
+            )
+        }

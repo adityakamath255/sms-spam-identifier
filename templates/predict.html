@@ -40,20 +40,17 @@
         document.getElementById('predictionForm').addEventListener('submit', async function(event) {
             event.preventDefault();
             
-            // Get the message
             const message = document.getElementById('messageInput').value.trim();
             if (!message) {
                 showError('Please enter a message.');
                 return;
             }
 
-            // Show loading state
             document.getElementById('loading-container').style.display = 'block';
             document.getElementById('result-container').style.display = 'none';
             document.getElementById('error-container').style.display = 'none';
 
             try {
-                // Send the request
                 const response = await fetch('/api/predict', {
                     method: 'POST',
                     headers: {
@@ -62,7 +59,6 @@
                     body: JSON.stringify({ message: message })
                 });
 
-                // Hide loading state
                 document.getElementById('loading-container').style.display = 'none';
 
                 if (!response.ok) {
@@ -72,7 +68,8 @@
 
                 const result = await response.json();
                 showResult(result);
-            } catch (error) {
+            } 
+            catch (error) {
                 document.getElementById('loading-container').style.display = 'none';
                 showError(error.message || 'Error processing request');
             }
@@ -84,26 +81,22 @@
             const resultIcon = document.getElementById('result-icon');
             const resultText = document.getElementById('result-text');
 
-            // Update the prediction display
             predictionText.textContent = result.prediction;
             
-            // Update icon and classes based on prediction
             if (result.prediction === 'SPAM') {
                 resultContainer.classList.add('spam');
                 resultContainer.classList.remove('not-spam');
                 resultIcon.classList.remove('fa-check-circle');
                 resultIcon.classList.add('fa-exclamation-circle');
-            } else {
+            } 
+            else {
                 resultContainer.classList.add('not-spam');
                 resultContainer.classList.remove('spam');
                 resultIcon.classList.remove('fa-exclamation-circle');
                 resultIcon.classList.add('fa-check-circle');
             }
 
-            // Update result text
-            resultText.textContent = `This message is classified as ${result.prediction} with ${result.probability} confidence.`;
-            
-            // Show the result container
+              resultText.textContent = `This message is classified as ${result.prediction} with ${result.confidence.toFixed(4) * 100}% confidence.`;
             resultContainer.style.display = 'block';
         }
 

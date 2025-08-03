@@ -26,15 +26,8 @@ def api_predict():
         if not message:
             return jsonify({'error': 'Empty message'}), 400
 
-        prediction, probability = predictor.predict(message)
-        confidence = probability if probability > 0.5 else 1 - probability
-
-        return jsonify({
-            "prediction": prediction,
-            "probability": f"{probability:.2%}",
-            "confidence": f"{confidence:.2%}",
-            "message": message
-        })
+        result = predictor.predict(message)
+        return jsonify(result)
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500

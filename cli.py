@@ -2,8 +2,8 @@ from prediction import Predictor
 
 
 class Cli:
-    def __init__(self, pred: Predictor):
-        self.pred = pred
+    def __init__(self, predictor: Predictor):
+        self.predictor = predictor
 
     def run(self) -> None:
         """Interactively classify user-inputted messages as spam or not."""
@@ -14,14 +14,9 @@ class Cli:
                 if message.lower() == "quit":
                     break
 
-                prediction, probability = self.pred.predict(message)
-                confidence = (
-                    probability
-                    if probability > 0.5
-                    else 1 - probability
-                )
-                print(f"Prediction: {prediction}")
-                print(f"Confidence: {confidence:.2%}")
+                result = self.predictor.predict(message)
+                print(f"Prediction: {result['prediction']}")
+                print(f"Confidence: {result['confidence']:.2%}")
                 print()
 
         except KeyboardInterrupt:
@@ -29,6 +24,6 @@ class Cli:
 
 
 if __name__ == "__main__":
-    pred = Predictor()
-    cli = Cli(pred)
+    predictor = Predictor()
+    cli = Cli(predictor)
     cli.run()
