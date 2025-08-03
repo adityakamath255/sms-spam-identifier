@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify
-from predictor import Predictor
+from prediction import Predictor
 
 app = Flask(__name__)
 predictor = Predictor()
