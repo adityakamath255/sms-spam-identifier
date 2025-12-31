@@ -13,7 +13,7 @@ from sklearn.metrics import (
 from nltk.stem import WordNetLemmatizer
 from pprint import pprint
 
-from feature_engineering import FeatureExtractor
+from feature_engineering import extract_features_batch
 
 TEST_SIZE = 0.2
 MAX_FEATURES = 5000
@@ -50,10 +50,6 @@ FORMAT_SPEC = {
     "false_negatives": "d",
     "true_positives": "d"
 }
-
-
-def get_feature_extractor():
-    return FeatureExtractor(WordNetLemmatizer())
 
 
 def get_vectorizer():
@@ -147,9 +143,9 @@ def save_artifacts(
 
 def run_training_pipeline() -> Tuple[xgb.Booster, Dict[str, float]]:
     messages, labels = load_data()
-    feature_extractor = get_feature_extractor()
+    lemmatizer = WordNetLemmatizer()
     vectorizer = get_vectorizer()
-    features = feature_extractor.process_batch(messages, vectorizer)
+    features = extract_features_batch(messages, vectorizer, lemmatizer)
     X_train, X_test, y_train, y_test = train_test_split(
         features,
         labels,
