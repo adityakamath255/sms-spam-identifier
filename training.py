@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import xgboost as xgb
 import pickle
+from pathlib import Path
 from typing import Tuple, Dict, Any
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -37,9 +38,10 @@ LABEL_MAP = {
     "spam": 1
 }
 
-FILEPATH = "spam.csv"
-MODEL_PATH = "model.ubj"
-VECTORIZER_PATH = "vectorizer.ubj"
+_DIR = Path(__file__).parent
+FILEPATH = _DIR / "spam.csv"
+MODEL_PATH = _DIR / "model.ubj"
+VECTORIZER_PATH = _DIR / "vectorizer.ubj"
 
 FORMAT_SPEC = {
     "accuracy": ".2%",

@@ -1,16 +1,20 @@
 import pickle
+from pathlib import Path
 import xgboost as xgb
 from typing import Dict, Any
 from nltk.stem import WordNetLemmatizer
 
 from feature_engineering import extract_features_single
-from training import MODEL_PATH, VECTORIZER_PATH
+
+_DIR = Path(__file__).parent
+MODEL_PATH = _DIR / "model.ubj"
+VECTORIZER_PATH = _DIR / "vectorizer.ubj"
 
 
 class Predictor:
     def __init__(self):
         self.model = xgb.Booster()
-        self.model.load_model(MODEL_PATH)
+        self.model.load_model(str(MODEL_PATH))
         with open(VECTORIZER_PATH, 'rb') as f:
             self.vectorizer = pickle.load(f)
         self.lemmatizer = WordNetLemmatizer()
