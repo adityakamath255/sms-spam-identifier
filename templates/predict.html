@@ -3,7 +3,6 @@
 <head>
     <title>SMS Spam Detection</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body class="background">
     <div class="container">
@@ -17,7 +16,7 @@
                     id="messageInput"
                     name="message" 
                     placeholder="Enter your message here..."
-                    required>{{ message if message else '' }}</textarea>
+                    required></textarea>
             </div>
             <button type="submit">Check Message</button>
         </form>
@@ -25,13 +24,12 @@
         <div id="result-container" class="output-container" style="display: none;">
             <h2 id="prediction-text" class="prediction"></h2>
             <div class="result">
-                <i id="result-icon" class="result-icon fa" aria-hidden="true"></i>
+                <span id="result-icon" class="result-icon"></span>
                 <span id="result-text" class="result-text"></span>
             </div>
         </div>
 
         <div id="loading-container" style="display: none; text-align: center; margin-top: 20px;">
-            <i class="fa fa-spinner fa-spin fa-2x"></i>
             <p>Analyzing message...</p>
         </div>
     </div>
@@ -86,14 +84,12 @@
             if (result.prediction === 'SPAM') {
                 resultContainer.classList.add('spam');
                 resultContainer.classList.remove('not-spam');
-                resultIcon.classList.remove('fa-check-circle');
-                resultIcon.classList.add('fa-exclamation-circle');
-            } 
+                resultIcon.textContent = '\u26A0\uFE0F';
+            }
             else {
                 resultContainer.classList.add('not-spam');
                 resultContainer.classList.remove('spam');
-                resultIcon.classList.remove('fa-exclamation-circle');
-                resultIcon.classList.add('fa-check-circle');
+                resultIcon.textContent = '\u2705';
             }
 
               resultText.textContent = `This message is classified as ${result.prediction} with ${result.confidence} confidence.`;
