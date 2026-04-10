@@ -3,11 +3,10 @@ from pathlib import Path
 import xgboost as xgb
 from typing import Dict, Any
 
-from feature_engineering import extract_features_single
 
 _DIR = Path(__file__).parent
 MODEL_PATH = _DIR / "model.ubj"
-VECTORIZER_PATH = _DIR / "vectorizer.ubj"
+VECTORIZER_PATH = _DIR / "vectorizer.pkl"
 
 
 class Predictor:
@@ -18,7 +17,7 @@ class Predictor:
             self.vectorizer = pickle.load(f)
 
     def predict(self, text: str) -> Dict[str, Any]:
-        features = extract_features_single(text, self.vectorizer)
+        features = self.vectorizer.transform([text]).toarray()
         d_matrix = xgb.DMatrix(features)
         probability = self.model.predict(d_matrix)[0]
 

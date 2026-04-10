@@ -11,7 +11,6 @@ from sklearn.metrics import (
     precision_recall_fscore_support,
     confusion_matrix
 )
-from feature_engineering import extract_features_batch
 
 MAX_FEATURES = 5000
 NGRAM_RANGE = (1, 4)
@@ -37,7 +36,7 @@ LABEL_MAP = {
 _DIR = Path(__file__).parent
 FILEPATH = _DIR / "spam.csv"
 MODEL_PATH = _DIR / "model.ubj"
-VECTORIZER_PATH = _DIR / "vectorizer.ubj"
+VECTORIZER_PATH = _DIR / "vectorizer.pkl"
 
 def get_vectorizer():
     return TfidfVectorizer(
@@ -135,8 +134,8 @@ def run_training_pipeline() -> Tuple[xgb.Booster, Dict[str, float]]:
         test_size=TEST_SIZE,
         random_state=RANDOM_STATE
     )
-    X_train = extract_features_batch(msg_train, vectorizer, fit=True)
-    X_test = extract_features_batch(msg_test, vectorizer, fit=False)
+    X_train = vectorizer.fit_transform(msg_train).toarray()
+    X_test = vectorizer.transform(msg_test).toarray()
     model = train_model(X_train, y_train, X_test, y_test)
     save_artifacts(model, vectorizer)
     metrics = evaluate_model(model, X_test, y_test)
