@@ -11,8 +11,6 @@ from sklearn.metrics import (
     precision_recall_fscore_support,
     confusion_matrix
 )
-from nltk.stem import WordNetLemmatizer
-
 from feature_engineering import extract_features_batch
 
 MAX_FEATURES = 5000
@@ -130,7 +128,6 @@ def save_artifacts(
 
 def run_training_pipeline() -> Tuple[xgb.Booster, Dict[str, float]]:
     messages, labels = load_data()
-    lemmatizer = WordNetLemmatizer()
     vectorizer = get_vectorizer()
     msg_train, msg_test, y_train, y_test = train_test_split(
         messages,
@@ -138,8 +135,8 @@ def run_training_pipeline() -> Tuple[xgb.Booster, Dict[str, float]]:
         test_size=TEST_SIZE,
         random_state=RANDOM_STATE
     )
-    X_train = extract_features_batch(msg_train, vectorizer, lemmatizer, fit=True)
-    X_test = extract_features_batch(msg_test, vectorizer, lemmatizer, fit=False)
+    X_train = extract_features_batch(msg_train, vectorizer, fit=True)
+    X_test = extract_features_batch(msg_test, vectorizer, fit=False)
     model = train_model(X_train, y_train, X_test, y_test)
     save_artifacts(model, vectorizer)
     metrics = evaluate_model(model, X_test, y_test)

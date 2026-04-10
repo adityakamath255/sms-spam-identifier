@@ -1,7 +1,7 @@
 import re
 import numpy as np
 import pandas as pd
-from typing import Dict, Any
+from typing import Any, Dict
 
 
 URL_PATTERN = r"""
@@ -26,12 +26,6 @@ PHONE_PATTERN = r'\d{7,}'
 SPECIAL_CHARS = '@#$%^&*~`{}[]<>|\\'
 
 
-def _preprocess_text(text: str, lemmatizer: Any) -> str:
-    words = text.split()
-    words = [lemmatizer.lemmatize(word) for word in words]
-    return ' '.join(words)
-
-
 def _extract_features(text: str) -> Dict[str, float]:
     words = text.split()
     num_words = max(1, len(words))
@@ -54,10 +48,8 @@ def _extract_features(text: str) -> Dict[str, float]:
 def extract_features_single(
     text: str,
     vectorizer: Any,
-    lemmatizer: Any,
 ) -> np.ndarray:
-    preprocessed_text = _preprocess_text(text, lemmatizer)
-    tfidf_features = vectorizer.transform([preprocessed_text])
+    tfidf_features = vectorizer.transform([text])
     addl_features = np.array([list(_extract_features(text).values())])
     return np.hstack([tfidf_features.toarray(), addl_features])
 
@@ -65,14 +57,12 @@ def extract_features_single(
 def extract_features_batch(
     texts,
     vectorizer: Any,
-    lemmatizer: Any,
     fit: bool = True,
 ) -> np.ndarray:
-    preprocessed_texts = [_preprocess_text(text, lemmatizer) for text in texts]
     if fit:
-        tfidf_features = vectorizer.fit_transform(preprocessed_texts)
+        tfidf_features = vectorizer.fit_transform(texts)
     else:
-        tfidf_features = vectorizer.transform(preprocessed_texts)
+        tfidf_features = vectorizer.transform(texts)
     addl_features = pd.DataFrame(
         _extract_features(text) for text in texts
     )

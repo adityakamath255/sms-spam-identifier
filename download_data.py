@@ -1,14 +1,9 @@
 import pandas as pd
-import nltk
 import zipfile
 import os
 from urllib.request import urlretrieve
 
 DB_URL = "https://archive.ics.uci.edu/ml/machine-learning-databases/00228/smsspamcollection.zip"
-
-
-def download_nltk_data():
-    nltk.download('wordnet')
 
 
 def download_dataset():
@@ -26,5 +21,4 @@ def download_dataset():
 
 
 if __name__ == "__main__":
-    download_nltk_data()
     download_dataset()
