@@ -15,7 +15,6 @@ from pprint import pprint
 
 from feature_engineering import extract_features_batch
 
-TEST_SIZE = 0.2
 MAX_FEATURES = 5000
 NGRAM_RANGE = (1, 4)
 MAX_DF = 0.70
@@ -29,6 +28,9 @@ MAX_DEPTH = 5
 LEARNING_RATE = 0.05
 SUBSAMPLE = 0.85
 COLSAMPLE_BYTREE = 0.85
+
+TEST_SIZE = 0.25
+RANDOM_STATE = 100
 
 LABEL_MAP = {
     "ham": 0,
@@ -70,18 +72,23 @@ def load_data() -> Tuple[pd.Series, pd.Series]:
     return messages, labels
 
 
-def train_model(X: np.ndarray, y: np.ndarray) -> xgb.Booster:
-    dtrain = xgb.DMatrix(X, label=y)
-    dval = xgb.DMatrix(X, label=y)
+def train_model(
+    X_train: np.ndarray,
+    y_train: np.ndarray,
+    X_val: np.ndarray,
+    y_val: np.ndarray,
+) -> xgb.Booster:
+    dtrain = xgb.DMatrix(X_train, label=y_train)
+    dval = xgb.DMatrix(X_val, label=y_val)
 
     params = {
         "objective": "binary:logistic",
         "eval_metric": ["logloss", "auc"],
-        "max_depth": 5,
-        "eta": 0.05,
-        "subsample": 0.85,
-        "colsample_bytree": 0.85,
-        "scale_pos_weight": np.sum(y == 0) / np.sum(y == 1)
+        "max_depth": MAX_DEPTH,
+        "eta": LEARNING_RATE,
+        "subsample": SUBSAMPLE,
+        "colsample_bytree": COLSAMPLE_BYTREE,
+        "scale_pos_weight": np.sum(y_train == 0) / np.sum(y_train == 1)
     }
 
     evals = [(dtrain, 'train'), (dval, 'validation')]
@@ -89,10 +96,10 @@ def train_model(X: np.ndarray, y: np.ndarray) -> xgb.Booster:
     model = xgb.train(
         params,
         dtrain,
-        num_boost_round=1000,
+        num_boost_round=NUM_BOOST_ROUNDS,
         evals=evals,
-        verbose_eval=50,
-        early_stopping_rounds=100
+        verbose_eval=VERBOSE_EVAL,
+        early_stopping_rounds=EARLY_STOPPING_ROUNDS
     )
 
     return model
@@ -145,14 +152,15 @@ def run_training_pipeline() -> Tuple[xgb.Booster, Dict[str, float]]:
     messages, labels = load_data()
     lemmatizer = WordNetLemmatizer()
     vectorizer = get_vectorizer()
-    features = extract_features_batch(messages, vectorizer, lemmatizer)
-    X_train, X_test, y_train, y_test = train_test_split(
-        features,
+    msg_train, msg_test, y_train, y_test = train_test_split(
+        messages,
         labels,
-        test_size=0.2,
-        random_state=100
+        test_size=TEST_SIZE,
+        random_state=RANDOM_STATE
     )
-    model = train_model(X_train, y_train)
+    X_train = extract_features_batch(msg_train, vectorizer, lemmatizer, fit=True)
+    X_test = extract_features_batch(msg_test, vectorizer, lemmatizer, fit=False)
+    model = train_model(X_train, y_train, X_test, y_test)
     save_artifacts(model, vectorizer)
     metrics = evaluate_model(model, X_test, y_test)
     return (model, metrics)

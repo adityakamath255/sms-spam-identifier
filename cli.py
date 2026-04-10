@@ -2,7 +2,6 @@ from prediction import Predictor
 
 
 def run_cli(predictor: Predictor):
-    """Interactively classify user-inputted messages as spam or not."""
     print()
     try:
         while True:

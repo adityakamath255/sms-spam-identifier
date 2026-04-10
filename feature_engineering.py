@@ -79,10 +79,14 @@ def extract_features_single(
 def extract_features_batch(
     texts,
     vectorizer: Any,
-    lemmatizer: Any
+    lemmatizer: Any,
+    fit: bool = True,
 ) -> np.ndarray:
     preprocessed_texts = [_preprocess_text(text, lemmatizer) for text in texts]
-    tfidf_features = vectorizer.fit_transform(preprocessed_texts)
+    if fit:
+        tfidf_features = vectorizer.fit_transform(preprocessed_texts)
+    else:
+        tfidf_features = vectorizer.transform(preprocessed_texts)
     addl_features = pd.DataFrame(
         _extract_features(text) for text in texts
     )
