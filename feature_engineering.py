@@ -27,35 +27,26 @@ SPECIAL_CHARS = '@#$%^&*~`{}[]<>|\\'
 
 
 def _preprocess_text(text: str, lemmatizer: Any) -> str:
-    text = text.lower()
     words = text.split()
     words = [lemmatizer.lemmatize(word) for word in words]
     return ' '.join(words)
 
 
 def _extract_features(text: str) -> Dict[str, float]:
-    num_words = max(1, len(text.split()))  # avoid division by zero
-    text_length = max(1, len(text))  # avoid division by zero
+    words = text.split()
+    num_words = max(1, len(words))
+    text_length = max(1, len(text))
 
-    urls = re.findall(URL_PATTERN, text, re.VERBOSE)
-    email_addrs = re.findall(EMAIL_PATTERN, text, re.VERBOSE)
-    phone_nos = re.findall(PHONE_PATTERN, text, re.VERBOSE)
-    capitals = [c for c in text if c.isupper()]
-    digits = [c for c in text if c.isdigit()]
-    specials = [c for c in text if c in SPECIAL_CHARS]
-
-    # dividing by text_length for single character level features
-    # dividing by num_words for multiple character level features
     return {
         'length': text_length,
         'num_words': num_words,
-        'unique_word_count': len(set(text.split())),
-        'url_ratio': len(urls) / num_words,
-        'email_ratio': len(email_addrs) / num_words,
-        'phone_ratio': len(phone_nos) / num_words,
-        'uppercase_ratio': len(capitals) / text_length,
-        'digits_ratio': len(digits) / text_length,
-        'special_ratio': len(specials) / text_length,
+        'unique_word_count': len(set(words)),
+        'url_ratio': len(re.findall(URL_PATTERN, text, re.VERBOSE)) / num_words,
+        'email_ratio': len(re.findall(EMAIL_PATTERN, text, re.VERBOSE)) / num_words,
+        'phone_ratio': len(re.findall(PHONE_PATTERN, text)) / num_words,
+        'uppercase_ratio': sum(c.isupper() for c in text) / text_length,
+        'digits_ratio': sum(c.isdigit() for c in text) / text_length,
+        'special_ratio': sum(c in SPECIAL_CHARS for c in text) / text_length,
         'exclamation_ratio': text.count('!') / text_length,
     }
 
@@ -67,13 +58,8 @@ def extract_features_single(
 ) -> np.ndarray:
     preprocessed_text = _preprocess_text(text, lemmatizer)
     tfidf_features = vectorizer.transform([preprocessed_text])
-    addl_features = pd.DataFrame([_extract_features(text)])
-    all_features = np.hstack([
-        tfidf_features.toarray(),
-        addl_features.values
-    ])
-
-    return all_features
+    addl_features = np.array([list(_extract_features(text).values())])
+    return np.hstack([tfidf_features.toarray(), addl_features])
 
 
 def extract_features_batch(
