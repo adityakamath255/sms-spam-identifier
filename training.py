@@ -12,7 +12,6 @@ from sklearn.metrics import (
     confusion_matrix
 )
 from nltk.stem import WordNetLemmatizer
-from pprint import pprint
 
 from feature_engineering import extract_features_batch
 
@@ -23,7 +22,6 @@ MIN_DF = 2
 NUM_BOOST_ROUNDS = 1000
 VERBOSE_EVAL = 50
 EARLY_STOPPING_ROUNDS = 100
-TOP_PERCENTAGE = 0.2
 
 MAX_DEPTH = 5
 LEARNING_RATE = 0.05
@@ -43,26 +41,12 @@ FILEPATH = _DIR / "spam.csv"
 MODEL_PATH = _DIR / "model.ubj"
 VECTORIZER_PATH = _DIR / "vectorizer.ubj"
 
-FORMAT_SPEC = {
-    "accuracy": ".2%",
-    "precision": ".2%",
-    "recall": ".2%",
-    "f1_score": ".2%",
-    "lift": ".4f",
-    "true_negatives": "d",
-    "false_positives": "d",
-    "false_negatives": "d",
-    "true_positives": "d"
-}
-
-
 def get_vectorizer():
     return TfidfVectorizer(
         max_features=MAX_FEATURES,
         ngram_range=NGRAM_RANGE,
         max_df=MAX_DF,
         min_df=MIN_DF,
-        use_idf=True
     )
 
 
@@ -135,12 +119,6 @@ def evaluate_model(
     }
 
 
-def print_metrics(metrics: Dict[str, float]):
-    for metric, format_spec in FORMAT_SPEC.items():
-        value = metrics[metric]
-        print(f"{metric}: {value:{format_spec}}")
-
-
 def save_artifacts(
     model: xgb.Booster,
     vectorizer: Any,
@@ -172,4 +150,5 @@ if __name__ == "__main__":
     _, metrics = run_training_pipeline()
     print(f"Model saved at {MODEL_PATH}")
     print("Model specs:")
-    pprint(metrics)
+    for name, value in metrics.items():
+        print(f"  {name}: {value}")
