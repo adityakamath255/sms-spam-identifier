@@ -2,7 +2,14 @@ from flask import Flask, render_template, request, jsonify
 from prediction import Predictor
 
 app = Flask(__name__)
-predictor = Predictor()
+predictor = None
+
+
+def get_predictor():
+    global predictor
+    if predictor is None:
+        predictor = Predictor()
+    return predictor
 
 
 @app.route('/')
@@ -20,7 +27,7 @@ def api_predict():
     if not message:
         return jsonify({'error': 'Empty message'}), 400
 
-    result = predictor.predict(message)
+    result = get_predictor().predict(message)
     result["probability"] = f"{result['probability']:.2%}"
     result["confidence"] = f"{result['confidence']:.2%}"
     return jsonify(result)
