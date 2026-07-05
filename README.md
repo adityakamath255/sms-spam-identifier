@@ -27,10 +27,10 @@ git clone https://github.com/adityakamath255/sms-spam-identifier.git
 cd sms-spam-identifier
 
 # Install dependencies
-pip install -r requirements.txt
+uv sync
 
 # Download database and auxiliary data
-python setup.py
+uv run python download_data.py
 ```
 
 ## Usage
@@ -38,19 +38,19 @@ python setup.py
 ### Training a Model
 
 ```bash
-python training.py
+uv run python training.py
 ```
 
 ### Using the Command Line Interface
 
 ```bash
-python cli.py
+uv run python cli.py
 ```
 
 ### Running the Web Application
 
 ```bash
-python app.py
+uv run python app.py
 ```
 
 Navigate to `http://localhost:5000` to use the web interface.
@@ -94,10 +94,10 @@ The dataset used is [UCI SMS Spam Collection](https://archive.ics.uci.edu/ml/dat
 │   └── predict.html
 ├── static/                   # CSS and JS files
 │   └── styles.css
-└── requirements.txt          # Python dependencies
+└── pyproject.toml            # Project metadata and dependencies
 ```
 
 ## Requirements
 
-- Python 3.8+
-- See `requirements.txt` for full dependencies
+- Python 3.11+
+- See `pyproject.toml` for full dependencies (managed with [uv](https://docs.astral.sh/uv/))
